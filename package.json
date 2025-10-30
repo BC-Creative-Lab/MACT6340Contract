@@ -1,0 +1,30 @@
+{
+  "name": "mact6340contract",
+  "version": "1.0.0",
+  "description": "��#\u0000 \u0000M\u0000A\u0000C\u0000T\u00006\u00003\u00004\u00000\u0000C\u0000o\u0000n\u0000t\u0000r\u0000a\u0000c\u0000t\u0000\r\u0000 \u0000t\u0000h\u0000i\u0000s\u0000 \u0000i\u0000s\u0000 \u0000t\u0000h\u0000e\u0000 \u0000s\u0000m\u0000a\u0000r\u0000t\u0000 \u0000c\u0000o\u0000n\u0000t\u0000r\u0000a\u0000c\u0000t\u0000 \u0000f\u0000o\u0000r\u0000 \u0000m\u0000y\u0000 \u0000n\u0000f\u0000t\u0000 \u0000m\u0000i\u0000n\u0000t\u0000 \u0000f\u0000o\u0000r\u0000 \u0000M\u0000A\u0000C\u0000T\u00006\u00003\u00004\u00000\u0000",
+  "main": "index.js",
+  "scripts": {
+    "test": "npx hardhat test",
+    "coverage": "npx hardhat coverage",
+    "deploy": "node ./scripts/deploy.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/BC-Creative-Lab/MACT6340Contract.git"
+  },
+  "keywords": [],
+  "author": "Tracy Hiner",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/BC-Creative-Lab/MACT6340Contract/issues"
+  },
+  "homepage": "https://github.com/BC-Creative-Lab/MACT6340Contract#readme",
+  "dependencies": {
+    "@openzeppelin/contracts": "^5.4.0",
+    "dotenv": "^17.2.3"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^6.1.0",
+    "hardhat": "^2.26.5"
+  }
+}
