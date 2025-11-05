@@ -12,6 +12,8 @@ const ALCHEMY_URL = `https://polygon-amoy.g.alchemy.com/v2/${ALCHEMY_API_KEY}`;
 const STUNT_WALLET_PRIVATE_KEY = process.env.STUNT_WALLET_PRIVATE_KEY;
 const COINMARKETCAP_API_KEY = process.env.COINMARKETCAP_API_KEY;
 
+
+
 module.exports = {
   etherscan: {
     apiKey: {
@@ -29,7 +31,7 @@ module.exports = {
     outputFile: "gas-report.txt",
     noColors: true,
   },
-  defaultNetwork: "polygonAmoy", //"polygonAmoy", // hardhat for testing, change this for different networks
+  defaultNetwork: "hardhat", //"polygonAmoy", // hardhat for testing, change this for different networks
   networks: {
     hardhat: {
       chainId: 31337,

@@ -1,52 +1,38 @@
-// We require the Hardhat Runtime Environment explicitly here. This is optional
-// but useful for running the script in a standalone fashion through `node <script>`.
-//
-// You can also run a script with `npx hardhat run <script>`. If you do that, Hardhat
-// will compile your contracts, add the Hardhat Runtime Environment's members to the
-// global scope, and execute the script.
-const { hre, ethers, run, network } = require("hardhat");
+const { ethers, run, network } = require("hardhat");
+require("dotenv").config();
 
 async function main() {
   const args = {
-    // define arguments for deployment constructor call
-    mint_price: "20000000000000000", // .02 MATIC
+    mint_price: "20000000000000000", // 0.02 MATIC
     max_tokens: 3,
-    base_uri:
-      "https://ipfs.io/ipfs/QmTwiGMeNjhrECN5tHkSEN7jHDEQ3tvFzeCXF4f3EhZJzv",
+    base_uri: "https://ipfs.io/ipfs/QmTwiGMeNjhrECN5tHkSEN7jHDEQ3tvFzeCXF4f3EhZJzv",
     royaltyArtist: process.env.STUNT_WALLET_ADDRESS,
     royaltyBasis: 500,
   };
-  const BlackCrowCreativeLabNFTContractFactory = await ethers.getContractFactory(
-    "BlackCrowCreativeLabNFTContract"
-  );
-  // deploy
-  const BlackCrowCreativeLabNFTContract = await BlackCrowCreativeLabNFTContractFactory.deploy(
+
+  console.log("Deploying BlackCrowCreativeLabNFTContract...");
+  const Factory = await ethers.getContractFactory("BlackCrowCreativeLabNFTContract");
+  const Contract = await Factory.deploy(
     args.mint_price,
     args.max_tokens,
     args.base_uri,
     args.royaltyArtist,
     args.royaltyBasis
   );
-  console.log("Deploying...");
-  await BlackCrowCreativeLabNFTContract.waitForDeployment(
-    args.mint_price,
-    args.max_tokens,
-    args.base_uri,
-    args.royaltyArtist,
-    args.royaltyBasis
-  );
-  console.log("Waiting for block verifications...");
-  await BlackCrowCreativeLabNFTContract.deploymentTransaction().wait(15);
-  let contractAddress = await BlackCrowCreativeLabNFTContract.getAddress();
-  console.log(`Contract deployed to ${contractAddress}`);
-  // verify
+
+  await Contract.waitForDeployment();
+  const contractAddress = await Contract.getAddress();
+  console.log(`Deployed to: ${contractAddress}`);
+
+  console.log("Waiting for one block confirmation...");
+  await Contract.deploymentTransaction().wait(1);
+
   if (
-    // we are on a live testnet and have the correct api key
     (network.config.chainId === 80001 && process.env.POLYGONSCAN_API_KEY) ||
-    (network.config.chainId === 80002 && process.env.ETHERSCAN_API_KEY) ||
-    (network.config.chainId === 1115511 && process.env.ETHERSCAN_API_KEY)
+    (network.config.chainId === 80002 && process.env.POLYGONSCAN_API_KEY) ||
+    (network.config.chainId === 11155111 && process.env.ETHERSCAN_API_KEY)
   ) {
-    console.log("Verifying...");
+    console.log("Verifying contract...");
     await verify(contractAddress, [
       args.mint_price,
       args.max_tokens,
@@ -54,43 +40,45 @@ async function main() {
       args.royaltyArtist,
       args.royaltyBasis,
     ]);
-    console.log("Completed.");
   } else {
-    console.log("No verification available for hardhat network.");
+    console.log("Skipping verification on local network.");
   }
-  // mint 3
+
   const ipfs = [
     "https://ipfs.io/ipfs/QmdKR2UxXcSLVptr6ggziRG4EKUYNSiS2AFEy3wUAHVqUt",
     "https://ipfs.io/ipfs/QmQnABgoMhgP1t1gyopTS4EmsaPUZ6dwufpq1QWBZg4RyD",
     "https://ipfs.io/ipfs/QmfKLqTkMSNiC3Kc7unLctWkJREWFv4gF8Cknhkdej3snb",
   ];
-  console.log("Minting 3 tokens...");
+
+  console.log("Minting three tokens...");
   for (let i = 0; i < 3; i++) {
-    const transactionResponse = await BlackCrowCreativeLabNFTContract.mintTo(ipfs[i], {
-      value: args.mint_price,
-    });
-    await transactionResponse.wait(3);
-    console.log(`Token ${i + 1} completed.`);
+    const tx = await Contract.mintTo(ipfs[i], { value: args.mint_price });
+    console.log(`Mint transaction ${i + 1}: ${tx.hash}`);
+    await tx.wait(1);
+    console.log(`Token ${i + 1} minted.`);
   }
+
+  console.log("All tokens minted. Deployment and minting complete.");
 }
 
 async function verify(contractAddress, args) {
-  console.log("verifying contract...");
+  console.log("Verifying contract on Polygonscan...");
   try {
     await run("verify:verify", {
       address: contractAddress,
       constructorArguments: args,
     });
+    console.log("Verification successful.");
   } catch (err) {
     if (err.message.toLowerCase().includes("already verified")) {
-      console.log("Already verified");
+      console.log("Already verified on Polygonscan.");
     } else {
-      console.log(err);
+      console.error("Verification error:", err);
     }
   }
 }
 
 main().catch((error) => {
-  console.error(error);
+  console.error("Script failed:", error);
   process.exitCode = 1;
 });
